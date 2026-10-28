@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>场照后期提示词技能 · 使用说明</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root{
+    --ink:#171a21; --sub:#5b6270; --line:#e5e8ef; --bg:#f5f6f9;
+    --amber:#ff7a3d; --teal:#1f8f83; --violet:#5b6bd6; --card:#ffffff;
+  }
+  body{
+    font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",system-ui,sans-serif;
+    background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased;
+  }
+  .page{ width:1100px; margin:0 auto; padding:34px 40px 40px; }
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative; overflow:hidden; border-radius:20px; padding:38px 42px 34px;
+    background:radial-gradient(120% 160% at 88% -10%, #2c3550 0%, #1b2030 52%, #141824 100%);
+    color:#fff;
+  }
+  .hero:after{
+    content:""; position:absolute; right:-90px; top:-120px; width:340px; height:340px;
+    border-radius:50%; background:radial-gradient(circle,#ff7a3d33,transparent 65%);
+  }
+  .kicker{ font-size:13px; letter-spacing:.22em; color:#ffb08a; text-transform:uppercase; }
+  h1{ font-size:38px; letter-spacing:.01em; margin:12px 0 12px; font-weight:800; }
+  h1 em{ font-style:normal; color:#ff9a63; }
+  .lead{ font-size:16px; line-height:1.85; color:#c9d0e0; max-width:640px; }
+  .stats{ display:flex; gap:34px; margin-top:28px; }
+  .stat b{ display:block; font-size:30px; color:#fff; letter-spacing:.02em; }
+  .stat span{ font-size:12.5px; color:#98a2b8; letter-spacing:.08em; }
+  .hero-badge{
+    position:absolute; right:42px; top:40px; font-size:12.5px; color:#ffd9c6;
+    border:1px solid #ffffff2e; background:#ffffff12; padding:7px 13px; border-radius:999px;
+  }
+
+  .trigger{
+    margin-top:24px; font-size:13px; color:#aab3c6; border-top:1px solid #ffffff1f; padding-top:15px;
+  }
+  .trigger b{ color:#ffbf9c; font-weight:700; }
+
+  /* ---------- sections ---------- */
+  section{ margin-top:34px; }
+  .sec-head{ display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+  .sec-no{
+    width:26px; height:26px; border-radius:8px; background:var(--ink); color:#fff;
+    display:grid; place-items:center; font-size:13px; font-weight:700;
+  }
+  .sec-head h2{ font-size:20px; letter-spacing:.01em; }
+  .sec-head p{ color:var(--sub); font-size:13px; margin-left:auto; }
+
+  .steps{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .step{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:22px 20px 20px; position:relative;
+  }
+  .step .n{
+    font-family:Georgia,serif; font-size:40px; color:#dfe3ec; line-height:1;
+  }
+  .step h3{ font-size:16.5px; margin:10px 0 8px; }
+  .step p{ font-size:13.5px; line-height:1.85; color:var(--sub); }
+  .step .tag{
+    display:inline-block; margin-top:12px; font-size:12px; padding:4px 10px; border-radius:999px;
+    background:#fff3ec; color:#c4562b; border:1px solid #ffd9c4;
+  }
+
+  /* ---------- formula ---------- */
+  .formula{
+    background:var(--card); border:1px solid var(--line); border-radius:16px; padding:24px 26px;
+  }
+  .formula .row{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .slot{
+    padding:10px 18px; border-radius:12px; font-size:15px; font-weight:700;
+    border:1px dashed #b9c0d0; color:#2b3243; background:#f8f9fc;
+  }
+  .slot.hot{ border-style:solid; border-color:#ffc4a8; background:#fff4ee; color:#b44b1f; }
+  .plus{ color:#9aa2b4; font-size:18px; }
+  .examples{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:18px; }
+  .ex{
+    font-size:13.5px; line-height:1.7; color:#333a48; background:#f8f9fc;
+    border-left:3px solid var(--amber); border-radius:0 10px 10px 0; padding:11px 14px;
+  }
+
+  /* ---------- output mock ---------- */
+  .mock{ display:grid; grid-template-columns:1fr 300px; gap:16px; }
+  .term{
+    background:#151a24; border-radius:16px; padding:20px 22px; color:#d7deea;
+    font-family:"Cascadia Code",Consolas,"Microsoft YaHei",monospace; font-size:13px; line-height:1.95;
+    border:1px solid #222b3a;
+  }
+  .term .k{ color:#ffb27d; }
+  .term .g{ color:#7fd1c4; }
+  .term .c{ color:#8b95a8; }
+  .term .b{ color:#fff; font-weight:700; }
+  .notes{ display:flex; flex-direction:column; gap:10px; }
+  .note{
+    background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px;
+    font-size:12.8px; line-height:1.7; color:var(--sub);
+  }
+  .note b{ color:var(--ink); display:block; font-size:13.2px; margin-bottom:3px; }
+  .dot{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
+
+  /* ---------- scenario cards ---------- */
+  .cards{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px; padding:20px 22px;
+  }
+  .badge{
+    width:32px; height:32px; border-radius:10px; display:grid; place-items:center;
+    font-size:15px; font-weight:800; color:#fff; letter-spacing:0; flex:0 0 auto;
+  }
+  .badge.a{ background:linear-gradient(135deg,#ff9d63,#ef5f2a); }
+  .badge.b{ background:linear-gradient(135deg,#818ce2,#4a59c6); }
+  .badge.c{ background:linear-gradient(135deg,#45b8a8,#128072); }
+  .badge.d{ background:linear-gradient(135deg,#e586ac,#b6477a); }
+  .badge.sm{ width:27px; height:27px; border-radius:9px; font-size:13px; background:#eef1f7; color:#3f485c; }
+  .card h3{ font-size:16px; margin:8px 0 6px; }
+  .card .ask{ font-size:13.2px; line-height:1.75; color:#333a48; background:#f8f9fc; border-radius:10px; padding:10px 12px; margin-top:8px; }
+  .card .why{ font-size:12.4px; color:#8a91a2; margin-top:8px; }
+
+  /* ---------- pipeline ---------- */
+  .pipe{
+    background:linear-gradient(180deg,#ffffff,#fbfcfe); border:1px solid var(--line);
+    border-radius:16px; padding:22px 24px;
+  }
+  .flow{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+  .node{
+    font-size:13px; font-weight:700; padding:9px 14px; border-radius:10px;
+    background:#eef1f7; color:#2b3243;
+  }
+  .node.must{ background:#fff1e8; color:#b44b1f; border:1px solid #ffd6bd; }
+  .node.end{ background:#e9f6f4; color:#14675e; }
+  .arrow{ color:#b3bac9; font-size:14px; }
+  .stage{ display:flex; align-items:flex-start; gap:16px; margin-top:10px; }
+  .stage:first-child{ margin-top:0; }
+  .stage-label{
+    flex:0 0 74px; text-align:center; font-size:12px; font-weight:700; letter-spacing:.04em;
+    color:#3c4557; background:#eef1f7; border-radius:8px; padding:8px 0; margin-top:1px;
+  }
+  .stage-label.hot{ color:#b44b1f; background:#fff1e8; border:1px solid #ffd6bd; }
+  .stage .flow{ flex:1; }
+  .pipe .hint{ font-size:12.8px; color:var(--sub); margin-top:16px; line-height:1.8; border-top:1px dashed #e2e6ee; padding-top:13px; }
+
+  /* ---------- tips ---------- */
+  .tips{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .tip{
+    display:flex; gap:12px; background:var(--card); border:1px solid var(--line);
+    border-radius:14px; padding:14px 16px;
+  }
+  .tip .t{ font-size:19px; line-height:1.2; }
+  .tip b{ font-size:13.8px; display:block; margin-bottom:3px; }
+  .tip p{ font-size:12.8px; line-height:1.7; color:var(--sub); }
+
+  /* ---------- don't ---------- */
+  .dont{ display:flex; flex-wrap:wrap; gap:9px; }
+  .pill{
+    font-size:12.8px; padding:8px 14px; border-radius:999px; color:#8a5561;
+    background:#fdf2f4; border:1px solid #f3d3d9;
+  }
+  .foot{
+    margin-top:30px; padding-top:16px; border-top:1px dashed #d6dae4;
+    display:flex; justify-content:space-between; font-size:12px; color:#8a91a2;
+  }
+
+  @media print{
+    body{ background:#fff; }
+    .page{ width:auto; padding:0; }
+    section{ break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="hero">
+    <div class="hero-badge">在对话框里直接发图即可触发</div>
+    <div class="kicker">COS 场照后期 · 提示词技能</div>
+    <h1>发一张场照，<em>还你一套能直接用的修图提示词</em></h1>
+    <p class="lead">
+      这个技能先把图里的角色认出来、锁定特征，再按你的需求拆成一条条中文修图指令。
+      你只需要把指令整段粘进 Nano Banana（Gemini）、GPT-Image 或即梦 / Seedream——它本身不修图，<b style="color:#fff">只出文字</b>。
+    </p>
+    <div class="stats">
+      <div class="stat"><b>125</b><span>条修图模板</span></div>
+      <div class="stat"><b>14</b><span>个模板组</span></div>
+      <div class="stat"><b>28</b><span>种症状速查</span></div>
+      <div class="stat"><b>3</b><span>步上手</span></div>
+    </div>
+    <div class="trigger">触发方式：直接把图拖进来 + 一句话需求；想指定技能时说一句「用场照修图技能」即可。</div>
+  </div>
+
+  <section>
+    <div class="sec-head"><div class="sec-no">1</div><h2>三步上手</h2><p>第一次用，照这个顺序即可</p></div>
+    <div class="steps">
+      <div class="step">
+        <div class="n">01</div>
+        <h3>发图 + 一句话需求</h3>
+        <p>把场照拖进输入框，用一句话说清「改哪里」。图越清晰、位置说得越具体，结果越准。</p>
+        <div class="tag">例：把背景路人、灯架清掉，人物一点别动</div>
+      </div>
+      <div class="step">
+        <div class="n">02</div>
+        <h3>收到「角色行 + 提示词」</h3>
+        <p>开头一行是角色判断与特征清单（认不准会写「疑似 / 未确认」）；下面是可直接复制的一条或几条提示词。</p>
+        <div class="tag">一次一个环节，避免模型同时干两件事</div>
+      </div>
+      <div class="step">
+        <div class="n">03</div>
+        <h3>粘进模型，结果当下一条底图</h3>
+        <p>按技能给的顺序逐条跑：每跑完一条，用生成结果作为下一条的输入图，这样多步修图才不会把角色改走形。</p>
+        <div class="tag">清场 → 高清 → 人物 → 光影 → 调色</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><div class="sec-no">2</div><h2>一句话怎么提需求</h2><p>公式：图 + 改哪里 + 用在哪</p></div>
+    <div class="formula">
+      <div class="row">
+        <span class="slot hot">一张场照</span><span class="plus">+</span>
+        <span class="slot">想改的地方</span><span class="plus">+</span>
+        <span class="slot">用途 / 平台</span>
+      </div>
+      <div class="examples">
+        <div class="ex">这张图背景路人太多，帮我把路人和灯架清掉，要发朋友圈。</div>
+        <div class="ex">把皮肤修干净、妆别动，再出一张能发小红书的竖图。</div>
+        <div class="ex">这个角色是《原神》的雷电将军，帮我去掉舞台烟雾，加一点飘落的花瓣。</div>
+        <div class="ex">这套图我拍了 5 张，帮它们统一成同一种调色风格。</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><div class="sec-no">3</div><h2>输出长什么样</h2><p>看一遍就知道怎么用</p></div>
+    <div class="mock">
+      <div class="term">
+<span class="k">角色：疑似《原神》· 雷电将军（置信度 中）｜特征：紫色长发、紫瞳、紫白和风服饰、长刀</span><br><br>
+<span class="b">① 清场（背景路人、灯架）</span><br>
+以输入的原始 COS 场照作为唯一编辑底图，仅执行“同场馆背景清理、杂物移除与移除区域的局部修补”…<br>
+【一、最高优先级：人物主体绝对锁定】完整保留人物原本的脸部、脸型、五官…<br>
+【二、最高优先级：原场馆身份与建筑骨架绝对锁定】…<br>
+<span class="c">（长模板整段输出，保真段落不删）</span><br><br>
+<span class="b">② 肤质精修</span><br>
+对人物皮肤进行克制的专业摄影精修：轻微淡化临时痘印、细小瑕疵和不均匀色块，保留毛孔、绒毛与皮肤纹理…严格保持人物身份、五官比例、脸型、表情…避免过度磨皮、美白、网红脸…<br><br>
+<span class="b">③ 9:16 竖屏</span><br>
+以输入图为唯一编辑底图，通过扩图把画面调整为竖版 9:16…只延展上下（或左右）的场馆背景与地面，让人物完整落在画面安全区内…<br><br>
+<span class="b">④ 高清</span> <span class="c">（扩图后强制补一条）</span><br>
+让此区域变得清晰锐利，提高分辨率，优化细节与纹理。<br><br>
+<span class="g">也可加：去除抠图白边；统一人物背景光影</span>
+      </div>
+      <div class="notes">
+        <div class="note"><b><span class="dot" style="background:#ff7a3d"></span>角色行</b>每条提示词前都复述同一份特征，防止多轮重绘后发色、瞳色、纹样漂移。认不准时只给特征、不编名字。</div>
+        <div class="note"><b><span class="dot" style="background:#1f8f83"></span>一次一条</b>拆成几条就是几个环节，每条都写清「只改什么、其余保持不变、禁止什么」。</div>
+        <div class="note"><b><span class="dot" style="background:#5b6bd6"></span>「也可加」</b>只是可选建议，不做也不影响主体效果。</div>
+        <div class="note"><b><span class="dot" style="background:#8a91a2"></span>没有分析、没有模板名</b>输出就是可粘贴正文，省得你再删。</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><div class="sec-no">4</div><h2>四个最常用场景</h2><p>照着说就行</p></div>
+    <div class="cards">
+      <div class="card">
+        <span class="badge a">清</span>
+        <h3>清场：路人、灯架、杂物</h3>
+        <div class="ask">这张漫展照背景全是路人和灯架，帮我把背景清干净，人物一点都不能变。</div>
+        <div class="why">走 01「清除场照背景」长模板：锁人物、锁场馆，只清背景并修补移除区域。</div>
+      </div>
+      <div class="card">
+        <span class="badge b">光</span>
+        <h3>舞台照：彩光染脸、烟雾灰蒙</h3>
+        <div class="ask">这张舞台照脸被绿光染了，还有干冰烟雾，先把肤色还原，再去烟、最后调色。</div>
+        <div class="why">自动拆成：还原彩光染色 → 去舞台烟雾与灰蒙 → 保护肤色调色。</div>
+      </div>
+      <div class="card">
+        <span class="badge c">屏</span>
+        <h3>出片：竖屏适配 + 组图统一</h3>
+        <div class="ask">要发抖音，出 9:16 竖屏；另外这 3 张要统一成一套风格。</div>
+        <div class="why">交付顺序固定：比例适配 → 高清 → 一组图统一风格，扩图后不补高清会发软。</div>
+      </div>
+      <div class="card">
+        <span class="badge d">效</span>
+        <h3>加特效：天气、粒子、光效</h3>
+        <div class="ask">帮我在这个夜景里加飘落的樱花花瓣，别的都不要动。</div>
+        <div class="why">特效类一条只做一个效果；想同时加雪和雾就分两条。</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><div class="sec-no">5</div><h2>建议执行顺序</h2><p>技能会自己按这个顺序拆，你也别打乱</p></div>
+    <div class="pipe">
+      <div class="stage">
+        <span class="stage-label">内容阶段</span>
+        <div class="flow">
+          <span class="node">背景清理</span><span class="arrow">→</span>
+          <span class="node">结构补全 / 扩图</span><span class="arrow">→</span>
+          <span class="node">画质修复</span><span class="arrow">→</span>
+          <span class="node">高清</span><span class="arrow">→</span>
+          <span class="node">人物精修</span><span class="arrow">→</span>
+          <span class="node">光影融合</span><span class="arrow">→</span>
+          <span class="node">调色</span>
+        </div>
+      </div>
+      <div class="stage">
+        <span class="stage-label hot">交付阶段</span>
+        <div class="flow">
+          <span class="node must">比例适配</span><span class="arrow">→</span>
+          <span class="node must">高清（必补）</span><span class="arrow">→</span>
+          <span class="node end">组图统一风格</span>
+        </div>
+      </div>
+      <div class="hint">
+        没有对应需求的环节直接跳过，不用凑步骤。橙色三步是交付阶段：只要是扩图、裁切、改比例，之后<b>必须</b>再补一条高清，否则新填充区域会比原图软。
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><div class="sec-no">6</div><h2>让它更准的小技巧</h2><p>六个立刻见效的习惯</p></div>
+    <div class="tips">
+      <div class="tip"><span class="badge sm">位</span><div><b>说位置，别说「帮我清一下」</b><p>「灯架在画面右侧」「只改左边那个角色」比笼统描述准得多。</p></div></div>
+      <div class="tip"><span class="badge sm">比</span><div><b>直接给平台比例</b><p>「9:16 抖音」「4:5 小红书」「16:9 横图」，避免它再追问一轮。</p></div></div>
+      <div class="tip"><span class="badge sm">选</span><div><b>需要蒙版的先圈选</b><p>补全、替换、修手指、去污渍、瞳孔发光这类，圈了区域效果最好；不圈也能用文字定位。</p></div></div>
+      <div class="tip"><span class="badge sm">文</span><div><b>要英文版直接说</b><p>会把整条意译，锁人物、锁场景的保真段落一条不删。</p></div></div>
+      <div class="tip"><span class="badge sm">追</span><div><b>不满意就按条追问</b><p>「这版太假了，把『不要过度磨皮』再强调一下」或「第 2 条给我更克制的版本」。</p></div></div>
+      <div class="tip"><span class="badge sm">图</span><div><b>缺图会先问你要图</b><p>没附图、或人物太小看不清时，它不会猜角色，会先让你补图或给特征。</p></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><div class="sec-no">7</div><h2>它刻意不做的事</h2><p>这些属于重新生成，硬做会把角色改走形</p></div>
+    <div class="dont">
+      <span class="pill">换装 / 换角色</span>
+      <span class="pill">换场馆 / 重画全身</span>
+      <span class="pill">改姿势 / 改表情</span>
+      <span class="pill">多人互动重构</span>
+      <span class="pill">视频 / 连拍多帧</span>
+      <span class="pill">几乎全黑无细节的脸</span>
+      <span class="pill">纯放大画质（Real-ESRGAN 类）</span>
+      <span class="pill">商用版权判断</span>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span>场照后期提示词技能 · 使用说明</span>
+    <span>技能文件：~/.dsh/skills/picture-prompt-creator/SKILL.md ｜ 改动记录：skillopt/CHANGES.md</span>
+  </div>
+
+</div>
+</body>
+</html>
